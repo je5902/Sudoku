@@ -49,26 +49,29 @@ class BTSolver:
     """
     def forwardChecking ( self ):
         
+        # trailStack is empty, so call arcConsistency to remove values from domains based on given nums
         if len(self.trail.trailStack) == 0:
             self.arcConsistency()
             return ({}, True)
        
         modifiedVars = dict()
-        assignedVars = []
-        
+       
         # get most recently assigned variable by getting last variable in trailStack
-        mostRecentlyAssignedVar = self.trail.trailStack[-1][0]
+        currVar = self.trail.trailStack[-1][0]
         
-        # for all the neighbors of most recent var
-        for neighbor in self.network.getNeighborsOfVariable(mostRecentlyAssignedVar):
+        # for all the neighbors of currVar
+        for neighbor in self.network.getNeighborsOfVariable(currVar):
             
-            if neighbor.isChangeable and not neighbor.isAssigned() and neighbor.getDomain().contains(mostRecentlyAssignedVar.getAssignment()):
+            # if the neighbor is changeable, not assigned, and has the value of currVar in its domain
+            if neighbor.isChangeable and not neighbor.isAssigned() and neighbor.getDomain().contains(currVar.getAssignment()):
                 
+                # push neighbor and its current domain onto the trail
                 self.trail.push(neighbor)
                 
-                neighbor.removeValueFromDomain(mostRecentlyAssignedVar.getAssignment())
-                print(neighbor)
+                # remove the value from its domain
+                neighbor.removeValueFromDomain(currVar.getAssignment())
                 
+                # if the neighbor's new domain is 0, return false 
                 if neighbor.domain.size() == 0:
                     return ({}, False)
                         
