@@ -48,7 +48,53 @@ class BTSolver:
                 The bool is true if assignment is consistent, false otherwise.
     """
     def forwardChecking ( self ):
-        return ({},False)
+        
+        if len(self.trail.trailStack) == 0:
+            self.arcConsistency()
+            return ({}, True)
+       
+        modifiedVars = dict()
+        assignedVars = []
+        
+        # get most recently assigned variable by getting last variable in trailStack
+        #print(len(self.trail.trailStack))
+        
+        mostRecentlyAssignedVar = self.trail.trailStack[-1][0]
+        
+        print("MOST RECENT VAR: ", mostRecentlyAssignedVar)
+        
+        # for all the neighbors of most recent var
+        for neighbor in self.network.getNeighborsOfVariable(mostRecentlyAssignedVar):
+            
+            if neighbor.isChangeable and not neighbor.isAssigned() and neighbor.getDomain().contains(mostRecentlyAssignedVar.getAssignment()):
+                
+                self.trail.push(neighbor)
+                
+                neighbor.removeValueFromDomain(mostRecentlyAssignedVar.getAssignment())
+                print(neighbor)
+                
+                if neighbor.domain.size() == 0:
+                    print("RETURNING ZERO!!!!!!!!!")
+                    
+                    # self.trail.undo()
+                    return ({}, False)
+                        
+#                 elif neighbor.domain.size() == 1:
+#                     self.trail.placeTrailMarker()
+#                     self.trail.push(neighbor)
+                    
+#                     if self.forwardChecking()[1]:
+#                         neighbor.assignValue(neighbor.domain.values[0])
+#                     else:
+#                         self.trail.undo()
+#                         return ({}, False)
+                    
+                modifiedVars.update({neighbor : neighbor.getValues()})
+            
+        return (modifiedVars, True)
+        
+        
+        # return ({},False)
 
     # =================================================================
 	# Arc Consistency
