@@ -141,12 +141,27 @@ class BTSolver:
         return None
 
     """
-        Part 1 TODO: Implement the Minimum Remaining Value Heuristic
+        Part 2 TODO: Implement the Minimum Remaining Value Heuristic
 
         Return: The unassigned variable with the smallest domain
     """
     def getMRV ( self ):
-        return None
+        # Get all unassigned variables
+        unassignedVars = []
+        for v in self.network.variables:
+            if not v.isAssigned():
+                unassignedVars.append(v)
+        
+        # Set smallestDomainVar and Val to that of first variable in all unassigned
+        smallestDomainVar = unassignedVars[0]
+        smallestDomainVal = smallestDomainVar.domain.size()
+        
+        # loop through all unassigned varaibles, updating what the smallest domain and var found are
+        for uv in unassignedVars:
+            if uv.domain.size() < smallestDomainVal:
+                smallestDomainVar = uv
+                smallestDomainVal = smallestDomainVar.domain.size()
+        return smallestDomainVar
 
     """
         Part 2 TODO: Implement the Minimum Remaining Value Heuristic
@@ -178,7 +193,7 @@ class BTSolver:
         return sorted( values )
 
     """
-        Part 1 TODO: Implement the Least Constraining Value Heuristic
+        Part 2 TODO: Implement the Least Constraining Value Heuristic
 
         The Least constraining value is the one that will knock the least
         values out of it's neighbors domain.
