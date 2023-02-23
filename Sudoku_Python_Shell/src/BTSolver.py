@@ -162,7 +162,15 @@ class BTSolver:
                 smallestDomainVar = uv
                 smallestDomainVal = smallestDomainVar.domain.size()
         return smallestDomainVar
-
+    
+    def _getNumUnassignedNeighbors(self, v):
+        '''Helper function that returns the nnumber if unassigned neighbors of a given variable'''
+        num = 0
+        for neighbor in self.network.getNeighborsOfVariable(av):
+            if not neighbor.isAssigned():
+                num += 1
+        return num
+    
     """
         Part 2 TODO: Implement the Minimum Remaining Value Heuristic
                        with Degree Heuristic as a Tie Breaker
@@ -172,7 +180,31 @@ class BTSolver:
                 If there is only one variable, return the list of size 1 containing that variable.
     """
     def MRVwithTieBreaker ( self ):
-        return None
+        # Get all unassigned variables
+        unassignedVars = []
+        for v in self.network.variables:
+            if not v.isAssigned():
+                unassignedVars.append(v)
+        
+        # Set smallestDomainVar and Val to that of first variable in all unassigned
+        varsToReturn = [unassignedVars[0]]
+        smallestDomainVal = unassignedVars[0].domain.size()
+        numUnassignedNeighbors = self._getNumUnassignedNeighbors(unassignedVars[0])
+        
+        # loop through all unassigned varaibles, updating what the smallest domain, then breaking ties by checking unassigned neighbors
+        for uv in unassignedVars:
+            if uv.domain.size() < smallestDomainVal:
+                smallestDomainVal = uv.domain.size()
+                numUnassignedNeighbors = self._getNumUnassignedNeighbors(uv)
+                varsToReturn = [uv]
+            elif uv.domain.size() == smallestDomainVal:
+                if self._getNumUnassignedNeighbors(uv) > numUnassignedNeighbors:
+                    numUnassignedNeighbors = self._getNumUnassignedNeighbors(uv)
+                    varsToReturn = [uv]
+                elif self._getNumUnassignedNeighbors(uv) == numUnassignedNeighbors:
+                    # only append var if it has both smallest domain and most unassigned neighbors
+                    varsToReturn.append(uv)
+        return varsToReturn
 
     """
          Optional TODO: Implement your own advanced Variable Heuristic
@@ -202,6 +234,7 @@ class BTSolver:
                 The LCV is first and the MCV is last
     """
     def getValuesLCVOrder ( self, v ):
+        # v is variable
         return None
 
     """
