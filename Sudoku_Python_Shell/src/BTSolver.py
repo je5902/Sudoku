@@ -151,7 +151,9 @@ class BTSolver:
         for v in self.network.variables:
             if not v.isAssigned():
                 unassignedVars.append(v)
-        
+                
+        if len(unassignedVars) == 0:
+            return None
         # Set smallestDomainVar and Val to that of first variable in all unassigned
         smallestDomainVar = unassignedVars[0]
         smallestDomainVal = smallestDomainVar.domain.size()
@@ -185,7 +187,8 @@ class BTSolver:
         for v in self.network.variables:
             if not v.isAssigned():
                 unassignedVars.append(v)
-        
+        if len(unassignedVars) == 0:
+            return None
         # Set smallestDomainVar and Val to that of first variable in all unassigned
         varsToReturn = [unassignedVars[0]]
         smallestDomainVal = unassignedVars[0].domain.size()
