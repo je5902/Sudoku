@@ -153,7 +153,7 @@ class BTSolver:
                 unassignedVars.append(v)
                 
         if len(unassignedVars) == 0:
-            return None
+            return None # all variables are assigned, so return None
         # Set smallestDomainVar and Val to that of first variable in all unassigned
         smallestDomainVar = unassignedVars[0]
         smallestDomainVal = smallestDomainVar.domain.size()
@@ -188,7 +188,7 @@ class BTSolver:
             if not v.isAssigned():
                 unassignedVars.append(v)
         if len(unassignedVars) == 0:
-            return None
+            return None # all variables are assigned, so return None
         # Set smallestDomainVar and Val to that of first variable in all unassigned
         varsToReturn = [unassignedVars[0]]
         smallestDomainVal = unassignedVars[0].domain.size()
@@ -237,8 +237,20 @@ class BTSolver:
                 The LCV is first and the MCV is last
     """
     def getValuesLCVOrder ( self, v ):
-        # v is variable
-        return None
+        # Get values
+        values = v.domain.values
+        
+        # Create a dictionary were each domain value is a key that has a value corresponding 
+        # to the # of values it would knock out of v's neighbors
+        valDict = {val: 0 for val in values} 
+        
+        # Loop through all of v's neighbors and values to fill dictionary
+        for neighbor in self.network.getNeighborsOfVariable(v):
+            for val in values:
+                if val in neighbor.domain.values:
+                    valDict[val] += 1
+        # Return list ordered by the values of valdict
+        return [val for (val,_) in sorted(valDict.items(),key=lambda x:x[1])]
 
     """
          Optional TODO: Implement your own advanced Value Heuristic
