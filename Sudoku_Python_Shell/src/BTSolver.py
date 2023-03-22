@@ -116,7 +116,35 @@ class BTSolver:
                 The bool is true if assignment is consistent, false otherwise.
     """
     def norvigCheck ( self ):
-        return ({}, False)
+        # FIRST STRATEGY OF NORVIG IS FORWARD CHECKING
+        modifiedDict, isConsistent = self.forwardChecking()
+        
+        if not isConsistent:
+            return ({}, False) 
+        
+        assignedDict = {}
+        N = self.gameboard.N
+        
+        for v in modifiedDict:
+            for c in self.network.getConstraintsContainingVariable(v):
+                counter = [0]*(N+1)
+                for v2 in c.vars:
+                    for val in v2.getValues():
+                        counter[val] += 1
+                for i in range(1, N+1):
+                    if counter[i] == 1:
+                        for v3 in c.vars:
+                            if v3.isChangeable() and not v3.isAssigned() and v3.getDomain().contains(i):
+                                self.trail.push(v3)
+                                v3.assignValue(i)
+                                
+                                _, isConsistent = self.forwardChecking()
+                                if not isConsistent:
+                                    return ({}, False)
+                                else:
+                                    assignedDict.update({v3 : i})
+
+        return (assignedDict, True)
 
     """
          Optional TODO: Implement your own advanced Constraint Propagation
@@ -168,7 +196,7 @@ class BTSolver:
     def _getNumUnassignedNeighbors(self, v):
         '''Helper function that returns the nnumber if unassigned neighbors of a given variable'''
         num = 0
-        for neighbor in self.network.getNeighborsOfVariable(av):
+        for neighbor in self.network.getNeighborsOfVariable(v):
             if not neighbor.isAssigned():
                 num += 1
         return num
@@ -188,7 +216,7 @@ class BTSolver:
             if not v.isAssigned():
                 unassignedVars.append(v)
         if len(unassignedVars) == 0:
-            return None # all variables are assigned, so return None
+            return [None] # all variables are assigned, so return None
         # Set smallestDomainVar and Val to that of first variable in all unassigned
         varsToReturn = [unassignedVars[0]]
         smallestDomainVal = unassignedVars[0].domain.size()
